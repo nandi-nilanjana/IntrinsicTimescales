@@ -1,0 +1,9 @@
+data/
+docs/
+tests/
+matScripts/
+pathdef.m/
+README.md/
+.DS_Store/
+.DS_Store
+**/.DS_Store
