@@ -693,7 +693,6 @@ def mainFun_computeTAU(data,unit,lag_limit,excludeFirstBin):
         print('compute_autoc did not converge, moving on to next neuron')
         return None, None
     
-    
     curr_fit = exp_fit_autoc(curr_autoc,unit,excludeFirstBin)
     print('Success estimating all fits')
     best_fit = exp_fit_autoc_post_hoc(curr_fit,unit)

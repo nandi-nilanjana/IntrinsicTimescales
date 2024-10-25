@@ -25,17 +25,6 @@ and convert them to arrays to be read in python
 """    
 
 def run_computeTAU_FM(inFolder,outFolder,lag_limit,excludeFirstBin):
-    
-##modules import
-    import sys,re, pickle 
-    sys.path.append('/Users/nilanjana/Documents/LabWorkBench/IntrinsicTimescales/scripts/Processing_Methods')
-    #import pandas as pd
-    from computeTAU_FontanierMethod import mainFun_computeTAU
-    from open_matlabData import open_matlab_behaviour
-    import os
-   # from scipy.io import loadmat
-    import numpy as np
-    from scipy.io import savemat
 
     # Create folder if it does not exist
     if not os.path.exists(outFolder):
@@ -113,6 +102,19 @@ if __name__=='__main__':
         server = '/envau'  # niolon
     elif current_path.startswith('/envau'):
         server = '/envau'  # niolon
+        
+    import sys,re, pickle 
+    if server == '/envau':
+        sys.path.append('/envau/work/comco/nandi.n/IntrinsicTimescales/scripts/Processing_Methods')
+    else:
+        sys.path.append('/Users/nilanjana/Documents/LabWorkBench/IntrinsicTimescales/scripts/Processing_Methods')
+    
+    from computeTAU_FontanierMethod import mainFun_computeTAU
+    from open_matlabData import open_matlab_behaviour     
+    # from scipy.io import loadmat
+    import numpy as np
+    from scipy.io import savemat    
+       
    
     monkey = 'Tomy'
     #monkey = 'Mourad'
