@@ -191,17 +191,12 @@ def compute_autoc(data,lag_limit) :
     curr_autoc['countsn'] = (curr_autoc['countsn'] / curr_autoc['countsn'].sum()) * (1/wd) #without smoothening
     
     
-    
-    
-    
     # Find the maximum value in the countsnsm column
     max_value = curr_autoc['countsnsm'].max()
     #curr_autoc['countsnsm'] =  curr_autoc['countsnsm']/max_value
    
     
-    
     return curr_autoc
-
 
 ## Detect peak and putative dip/additional peak - Sunfunction 2
 # most of the variable names and peak detection is based on Fontanier's code in R
@@ -272,22 +267,24 @@ def dip_func(autoc,unit,excludeFirstBinPeak):
             curr_post_peak1 = autoc[filt_idx] #entire data after the first peak
     
             ## Global (post peak1) min and max
-           # curr_min =np.min(curr_post_peak1['countsnsm'])
+            curr_min =np.min(curr_post_peak1['countsnsm'])
             curr_max = np.max(curr_post_peak1['countsnsm'])
     
             ## Minimum of the AC from first peak until 100ms after it
     
             # filter the data between post peak1 and 100 ms after it
-            filt_data = curr_post_peak1[curr_post_peak1['mids']==(df_peak['peak1_lat'])+100]
+            
+            # Find the closest value which is 100ms after the first peak in curr_post_peak1['mids'] 
+            filt_data =  (curr_post_peak1['mids'] - (df_peak['peak1_lat']+ 100)).abs().idxmin()
             
             #it checks whether there is any data 100 ms after the first peak - leads to no dip
-            if filt_data.empty:
+            if filt_data == 0:
                 
                 dip = False
                 
             else:
                 
-                idx  = filt_data.index[0]
+                idx  = filt_data
                 curr_begin = curr_post_peak1.loc[:idx]
                 curr_begin=curr_begin.reset_index(drop=True) #update the indices from 0 to end
                 
@@ -310,7 +307,7 @@ def dip_func(autoc,unit,excludeFirstBinPeak):
                             curr_begin['countsnsm'][min_idx + 1] > curr_begin['countsnsm'][min_idx]
                         )
                     ):  
-                        dip = curr_max - loc_min >= 3/4 * (curr_max-loc_min) #only considered as the second dip if the local minima is greater than equal to 75% of AC(max,min)
+                        dip = curr_max - loc_min >= 3/4 * (curr_max-curr_min) #only considered as the second dip if the local minima is greater than equal to 75% of AC(max,min)
                     else:
                         dip = False
     
@@ -684,8 +681,7 @@ def exp_fit_autoc_post_hoc(fit_data,unit):
 def mainFun_computeTAU(data,unit,lag_limit,excludeFirstBin):
     print('Inside main function to compute TAU')
     curr_autoc = compute_autoc(data,lag_limit)
-    
-    
+        
     if curr_autoc is not None:
         
         print('Success compute_autoc')
@@ -702,6 +698,6 @@ def mainFun_computeTAU(data,unit,lag_limit,excludeFirstBin):
 
 
         
-        
+         
         
         
