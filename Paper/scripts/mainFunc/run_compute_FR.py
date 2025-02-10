@@ -152,7 +152,7 @@ if __name__=='__main__':
             
            print(f"Procession Session{sess}")
            inFolder = f"{server}/work/comco/nandi.n/IntrinsicTimescales/data/{monkey}/{sess}/modifiedData" 
-           outFolder = f"{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/{monkey}/SUA/{sess}/FR_align{alignData}" 
+           outFolder = f"{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/SUA/{monkey}/{sess}/FR_align{alignData}" 
            run_compute_FR(inFolder, outFolder,alignData, None)
            
         print('Success computing FR for all sessions')
