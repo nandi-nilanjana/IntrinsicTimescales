@@ -16,7 +16,7 @@ session called TAU_FR_Layerwise
 
 Input for main function - 
 
-the path for data_info- it caneither be Mourad or TommyLaminarInfo
+the path for data_info- it can either be Mourad or TomyLaminarInfo
 the path where tau adn FR data is stored
 OutputFolderName 
 
@@ -108,12 +108,8 @@ def TAU_FR_Layerwise(data_path_TAU,data_path_FR,probe_name,ranges,all_layer):
                                 FR_array[f"{layers[i]}"].append(FR_perNeuron)
                                 tau_array[f"{layers[i]}"].append(t_val)
                                 lat_array[f"{layers[i]}"].append(lat_val)
-                # else:
-                #         c+=1
-                        
-                
-                                
-   
+                                               
+  
     return tau_array,FR_array,lat_array #returns the tau values for all the layers from this probe and session 
 
 
@@ -184,7 +180,7 @@ if __name__ == '__main__' :
             
             #excel sheet with layer inormation for each monkey
               
-            data_info = f'{server}/work/comco/nandi.n/IntrinsicTimescales/docs/{monkey_name}LaminarInfo.xlsx'
+            data_info = f'{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/docs/{monkey_name}LaminarInfo.xlsx'
             
             df = pd.read_excel(data_info)
             df_subset =  df[df['Probe_Area']== probe_area ] #first take the subset of sessions and the probe numbers 
@@ -207,8 +203,8 @@ if __name__ == '__main__' :
             # Read the data and the laminar info
             # Data path
                    
-                    inFolder_TAU = f"{server}/work/comco/nandi.n/IntrinsicTimescales/data/{monkey_name}/{sess}/TAU_FM_excludeFirstBin_loess_0.1"
-                    inFolder_FR = f"{server}/work/comco/nandi.n/IntrinsicTimescales/data/{monkey_name}/{sess}/FR"
+                    inFolder_TAU = f"{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/SUA/{monkey_name}/{sess}/TAU_FM"
+                    inFolder_FR = f"{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/SUA/{monkey_name}/{sess}/FR_align0"
                     print(f"Processing Session {sess}")
                      
                     n_probes = len(df_sess) # Some sessions have M1/PMd in both the probes
@@ -237,11 +233,11 @@ if __name__ == '__main__' :
             p2 = pd.DataFrame(combined_FR) 
             p3 = pd.DataFrame(combined_lat)
              
-            outFolder = f"{server}/work/comco/nandi.n/IntrinsicTimescales/data/{monkey_name}/combinedData_firstBinExcluded_loess_0.1_updatedFinal"      
+            outFolder = f"{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/SUA/{monkey_name}/combined_Layerwise"      
             if not os.path.exists(outFolder):
                 os.makedirs(outFolder)                
                 
-            output_filename = f"TAU_FR_Lat_LayerWise_{probe_area}.pkl"
+            output_filename = f"TAU_FR_Lat_{probe_area}.pkl"
             outfile =os.path.join(outFolder,output_filename)
             
             with open(outfile, "wb") as output_file:
@@ -251,5 +247,6 @@ if __name__ == '__main__' :
                 
             print('Successfully completed combining across all sessions')
                 
+            
                 
                         
