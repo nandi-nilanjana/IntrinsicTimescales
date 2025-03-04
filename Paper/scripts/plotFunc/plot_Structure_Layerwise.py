@@ -26,6 +26,7 @@ from scipy.stats import kruskal, bootstrap
 import numpy as np
 import seaborn as sns
 import pandas as pd
+#import matplotlib.colors as mcolors
 
 def compare_PMd_M1_layerWise(inFolder,plot_combineData,probe_area):
     '''
@@ -73,6 +74,18 @@ def compare_PMd_M1_layerWise(inFolder,plot_combineData,probe_area):
     return TAU_PMd, TAU_M1
 
 
+# Function to add star and bracket if p-value is significant
+def add_significance(ax, x1, x2, y_max, p_value):
+    if p_value < 0.05:  # Check if p-value is significant
+        y_bracket = y_max * 1.1  # Position the bracket slightly above the violins
+        y_star = y_bracket * 1.02  # Position the star slightly above the bracket
+        
+        # Draw the bracket
+        ax.plot([x1, x1, x2, x2], [y_bracket, y_star, y_star, y_bracket], color='black', linewidth=1.5)        
+        # Add the star
+        ax.text((x1 + x2) / 2, y_star, '*', fontsize=20, ha='center', va='bottom', color='black')
+
+
 def plotHistogram_layerWise(TAU, probe_area, outFolder,monkey_name):
     '''
     
@@ -92,12 +105,23 @@ def plotHistogram_layerWise(TAU, probe_area, outFolder,monkey_name):
     # Create a new figure and subplots for histograms layerwise
        
     layers =['L2/3','L5','L6']    
+        # Define base colors
+    # pmd_base_color = '#B1C086' #"#00008B"  # Dark Blue
+    # m1_base_color =  '#EBCCFF'  #"#DA70D6"   # Orchid
+    
+    # # Define transparency levels for layers
+    # alpha_values = [0.05, 0.6, 1.0]  # Adjust these for L2/3, L5, L6
+    
+    # # Convert hex to RGBA with transparency
+    # pmd_layer_colors = [mcolors.to_rgba(pmd_base_color, alpha) for alpha in alpha_values]
+    # m1_layer_colors = [mcolors.to_rgba(m1_base_color, alpha) for alpha in alpha_values]
+    
     for p, area in enumerate(probe_area): 
         
         if area == 'PMd':
-            layer_colors = ['#BCBC82','turquoise','darkblue']
+            layer_colors =['#F0F0D7', '#D0DDD0', '#AAB99A'] #['#E5E3C9','#B4CFB0','#94B49F']  #pmd_layer_colors #
         else:
-            layer_colors = ['orchid','plum','purple']
+            layer_colors = ['#FFDFEF', '#EABDE6', '#E9A8F2']#'#D69ADE']#m1_layer_colors
         
         # Create a new figure and subplots for histograms structure wise
         fig, ax = plt.subplots(figsize=(12,8))
@@ -119,8 +143,34 @@ def plotHistogram_layerWise(TAU, probe_area, outFolder,monkey_name):
             ax.plot([], [], color=layer_colors[i], linestyle='dashed', linewidth=2, 
                     label=f'{area} Median: {med:.2f}')
         
+        #Kruskal Test
+        s, p_val= kruskal(TAU[p][0],TAU[p][1],TAU[p][2])
+     
+        if p_val <0.05:
+            print (f'Significant difference of tau between layers in {area} in {monkey_name}')
+            
+            #PostHoc Analysis if there is difference in median
+            
+            
+            # Perform Kruskal-Wallis test for each pair of groups
+            s_1, p_L2_L5 = kruskal(TAU[p][0], TAU[p][1])
+            s_2, p_L2_L6 = kruskal(TAU[p][0], TAU[p][2])
+            s_3, p_L5_L6 = kruskal(TAU[p][1], TAU[p][2])
+            
+            # Print or analyze the results for each pair of groups
+            print(f'Group L2/3 vs. Group L5:  p_val = {p_L2_L5:.2f} in {monkey_name}')
+            print(f'Group L2 vs. Group L6:  p_val = {p_L2_L6:.2f} in {monkey_name}')
+            print(f'Group L5 vs. Group L6:  p_val = {p_L5_L6:.2f} in {monkey_name}')
+            
+               # Get the maximum y-value for positioning the bracket
+            y_max = max(data['tau'])
+            # Add significance markers for each pair of groups
+            add_significance(ax, x1=0, x2=1, y_max=y_max, p_value=p_L2_L5)  # L2/3 vs. L5
+            add_significance(ax, x1=0, x2=2, y_max=y_max, p_value=p_L2_L6)  # L2/3 vs. L6
+            add_significance(ax, x1=1, x2=2, y_max=y_max, p_value=p_L5_L6)  # L5 vs. L6
+        
         #     # Define the positions for the bracket and star
-        # x1, x2 = 0, 1  # x-positions of the two violins
+        # x1, x2 = 0, 1  # x-positions of the two violinss
         # y_max = max(data['tau'])  # Maximum y-value for positioning the bracket
         # y_bracket = y_max * 1.1  # Position the bracket slightly above the violins
         # y_star = y_bracket * 1.02  # Position the star slightly above the bracket
@@ -159,8 +209,10 @@ if __name__ == '__main__':
     elif current_path.startswith('/envau'):
         server = '/envau'  # niolon
         
-    monkey = ['Combined','Mourad', 'Tomy']
-    probe_area = ['PMd', 'M1']  
+    # monkey = ['Combined','Mourad', 'Tomy']
+    # probe_area = ['PMd', 'M1']  
+    monkey = ['Combined', 'Mourad']
+    probe_area = ['PMd', 'M1']    
     
     for m, monkey_name in enumerate(monkey):       
         if monkey_name == 'Combined':
@@ -193,23 +245,23 @@ if __name__ == '__main__':
             else:
                 TAU = TAU_M1
          
-            #Kruskal Test
-            s, p_val= kruskal(TAU[0],TAU[1],TAU[2])
+            # #Kruskal Test
+            # s, p_val= kruskal(TAU[0],TAU[1],TAU[2])
          
-            if p_val <0.05:
-                print (f'Significant difference of tau between layers in {probe} in {monkey_name}')
+            # if p_val <0.05:
+            #     print (f'Significant difference of tau between layers in {probe} in {monkey_name}')
                 
-                #PostHoc Analysis if there is difference in median
+            #     #PostHoc Analysis if there is difference in median
                 
-                # Perform Kruskal-Wallis test for each pair of groups
-                s_1, p_L2_L5 = kruskal(TAU[0], TAU[1])
-                s_2, p_L2_L6 = kruskal(TAU[0], TAU[2])
-                s_3, p_L5_L6 = kruskal(TAU[1], TAU[2])
+            #     # Perform Kruskal-Wallis test for each pair of groups
+            #     s_1, p_L2_L5 = kruskal(TAU[0], TAU[1])
+            #     s_2, p_L2_L6 = kruskal(TAU[0], TAU[2])
+            #     s_3, p_L5_L6 = kruskal(TAU[1], TAU[2])
                 
-                # Print or analyze the results for each pair of groups
-                print(f'Group L2/3 vs. Group L5:  p_val = {p_L2_L5:.2f} in {monkey_name}')
-                print(f'Group L2 vs. Group L6:  p_val = {p_L2_L6:.2f} in {monkey_name}')
-                print(f'Group L5 vs. Group L6:  p_val = {p_L5_L6:.2f} in {monkey_name}')        
+            #     # Print or analyze the results for each pair of groups
+            #     print(f'Group L2/3 vs. Group L5:  p_val = {p_L2_L5:.2f} in {monkey_name}')
+            #     print(f'Group L2 vs. Group L6:  p_val = {p_L2_L6:.2f} in {monkey_name}')
+            #     print(f'Group L5 vs. Group L6:  p_val = {p_L5_L6:.2f} in {monkey_name}')        
                     
                     
                     
