@@ -12,15 +12,10 @@ import os
 import re
 import warnings
 import mne
-import h5py
 import numpy as np
-#from frites import io
-from src.preproc_tools import get_path_and_filenames
 
 # to remove the spam of pandas FutureWarning with iteritems
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
-#%%
 
 def interpolate_channels(lfp, new_spacing, area_name):
     """
@@ -129,92 +124,63 @@ def bipolar_derivation(lfp, depths, bipolar_spacing):
 
     return np.array(lfp_epochs_bipolar), np.array(depths_new_bipolar)
 
-
-
-
 if __name__ == "__main__":
+        
+    # list all the sessions for which we want to compute bipolar LFP
+    monkey = 'Tomy'    
     # list all the sessions that we want to preprocess
-   
-   #Mourad
-    #GOOD_LAMINAR_SESSIONS = ['Mo180405001','Mo180405004','Mo180411001','Mo180412002',
-                    # 'Mo180418002','Mo180419003','Mo180426004','Mo180503002', 'Mo180523002','Mo180524003', 
-                    # 'Mo180525003','Mo180531002','Mo180614002','Mo180614006',
-                    # 'Mo180615002','Mo180615005', 'Mo180619002','Mo180620004','Mo180622002',
-                    # 'Mo180626003', 'Mo180627003','Mo180629005', 'Mo180703003','Mo180704003', 'Mo180705002',
-                    #   'Mo180706002', 'Mo180710002','Mo180711004']
+    if monkey == 'Mourad': 
+        LAMINAR_SESS = ['Mo180330001','Mo180405001','Mo180405004','Mo180411001','Mo180412002',
+                    'Mo180418002','Mo180419003','Mo180426004','Mo180503002', 'Mo180523002','Mo180524003', 
+                    'Mo180525003','Mo180531002','Mo180614002','Mo180614006',
+                    'Mo180615002','Mo180615005', 'Mo180619002','Mo180620004','Mo180622002',
+                    'Mo180626003', 'Mo180627003','Mo180629005', 'Mo180703003','Mo180704003', 'Mo180705002'
+                      'Mo180706002', 'Mo180710002','Mo180711004','Mo180712006']
+    elif monkey == 'Tomy':
     
-    #Tomy
-    # GOOD_LAMINAR_SESSIONS = ['t140924003','t140925001','t140926002','t140929003','t140930001','t141001001','t141008001','t141010003','t150122001',
-    #                  't150123001','t150128001','t150204001','t150205004','t150212001','t150303002','t150319003','t150327002','t150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001']
-
-    GOOD_LAMINAR_SESSIONS = ['t140930001','t141001001','t141008001','t141010003','t150122001',
-                      't150123001','t150128001','t150204001','t150205004','t150212001','t150303002','t150319003',
-                      't150327002','t150327003','t150415002','t150416002','t150423002','t150430002','t150520003',
-                      't150716001']
-    #add later t150218001
+        LAMINAR_SESS =['t140924003','t140925001','t140926002','t140930001','t141001001','t141008001','t141010003','t150122001',
+                    't150123001','t150204001','t150205004','t150212001','t150303002','t150319003','t150320002','t150327002',
+                    't150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001','t150702002']
+    
+          #LAMINAR_SESS= ['t150423002'];
+      
     # define the new spacing between channels in um
     BIPOLAR_SPACING = 400  # in um
-    
+
+#check whether I am in server or local for the computation    
     current_path = os.getcwd()
     if current_path.startswith('/Users'):
         server = 'Volumes' #local VPN
     elif current_path.startswith('/envau'):
         server = 'envau'
-
-    for session in GOOD_LAMINAR_SESSIONS:
         
-        path_preprocessed = f'/{server}/work/comco/nandi.n/LFP_timescales/Results/Unipolar_sites/{session}'
-        path_output = f'/{server}/work/comco/nandi.n/LFP_timescales/Results/Bipolar_sites/{session}'
+    for session in LAMINAR_SESS:
+        
+        path_preprocessed = f'/{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/Unipolar_sites/{session}'
+        path_output = f'/{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/Bipolar_sites/{session}'
         
         if not os.path.exists(path_output) :
-            os.mkdir(path_output)
+            os.makedirs(path_output)
         
-        signal_type= 'LFP'
-
-        # lfp_filename = [i for i in os.listdir(path_preprocessed) if
-        #                 os.path.isfile(os.path.join(path_preprocessed, i)) and
-        #                 f'{session}' in i and 'epo' in i and f'{signal_type}' in i
-        #                 and 'bipolar' not in i][0]     
-        
-        
+        signal_type= 'LFP'        
         if path_preprocessed is None:
             raise ValueError("path_preprocessed is None")
-        
-        # matching_file = [i for i in os.listdir(path_preprocessed)
-        #                  if os.path.isfile(os.path.join(path_preprocessed, i)) and 
-        #                  f'{session}' in i and 'epo' in i and f'{signal_type}' in i and 
-        #                  'bipolar' not in i
-                         
-        #                  ]
-    
-    
+
         for i in os.listdir(path_preprocessed):
-            print (i)
             if f'{session}' in i and 'epo' in i and f'{signal_type}' in i and 'bipolar' not in i:
-                lfp_filename = i 
+                lfp_filename = i
+                break
+            else:
+                lfp_filename = []
                 
-                
+        if not len(lfp_filename)>0:
+            raise FileNotFoundError(f"No files matching the unipolar session {session} was found.")
             
-            
-            
-            
-    #             # Check if any files match the criteria
-    #     if not matching_file:
-    #         raise FileNotFoundError("No files matching the criteria were found.")
-    
-    # # Get the first matching file
-    #     lfp_filename = matching_file[0]
-
-
-    
-        # paths = get_path_and_filenames(session, signal_type='LFP')
-        
         paths = { 'path_preprocessed' : path_preprocessed, 
                  'lfp_filename' : lfp_filename,
                   'path_output' : path_output
             }
-        
-        
+                
         lfp_epochs = mne.read_epochs(os.path.join(paths['path_preprocessed'],
                                                   paths['lfp_filename']),
                                      preload=True)
@@ -267,7 +233,7 @@ if __name__ == "__main__":
             lfp_bipolar, depths_bipolar = bipolar_derivation(lfp=lfp_epochs_interp,
                                                              depths=depths_interp,
                                                              bipolar_spacing=BIPOLAR_SPACING)
-
+            
             # find the indexes in which the layers change
             layers = metadata[f"layers_{probe}"][0]            
             change_layers = np.where(np.array(layers[1:]) != np.array(layers[:-1]))[0] + 1
@@ -285,7 +251,6 @@ if __name__ == "__main__":
                 # if we don't change the sign, there is a problem with probes with only one change
                 # in layers, because it computes 'smaller' than the cut, and it reverses the numbering
                 layer_idx = np.digitize(-depths_bipolar_mm, -depths_layers)  # 0, 1,..3 for each channel
-
 
             else: #case where there is no layer change 
                 layer_idx = np.zeros(len(depths_bipolar_mm),dtype=int) #since no matter what the unique layer for that channel be , 
@@ -334,7 +299,5 @@ if __name__ == "__main__":
         lfp_epochs_mne.save(os.path.join(paths['path_output'],
                                          f'bipolarLFP-{session}-{BIPOLAR_SPACING}um-epo.fif'),
                             overwrite=True)
-
- #       io.logger.info(f'Finished bipolar derivation for session {session}')
  
         print(f'Finished bipolar derivation for session {session}')

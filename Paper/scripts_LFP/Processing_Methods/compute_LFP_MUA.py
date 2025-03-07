@@ -16,17 +16,9 @@ import pickle
 import numpy as np
 import pandas as pd
 import mne
-#from frites import io
-from src.preproc_tools import open_matlab_lfp, concatenate_probes, open_matlab_behaviour,\
-    open_matlab_analog, filter_lfp, cut_in_epochs, get_layer_mask, block_from_trial, \
-    get_depth_from_layer, interpolate_bad_channels, remove_extreme_channels
-# to remove the spam of pandas FutureWarning with iteritems
+import sys
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
-#%%
-
-
-
 
 def preprocessing_pipeline(session, monkey, alignment='Sel', signal_type='LFP', complete_trial=True):
     """
@@ -61,9 +53,19 @@ def preprocessing_pipeline(session, monkey, alignment='Sel', signal_type='LFP', 
     else:
         server = 'envau'  # niolon
         path_analog = '/hpc/comco/kilavik.b/MatlabScripts/Behavior/Results/HandEyeMovements/Data'
+    
+    if server == '/envau':
+        sys.path.append('/envau/work/comco/nandi.n/IntrinsicTimescales/Paper/scripts_LFP/Processing_Methods/src')
+    else:
+        sys.path.append('/Users/nilanjana/Documents/LabWorkBench/IntrinsicTimescales/Paper/scripts_LFP/Processing_Methods/src')
         
-
-    path =  f'/{server}/work/comco/nandi.n/trinsicTimescales/Paper/data/LFP/{monkey}/RAW'    
+    #append the common preprocessing scripts from src folder    
+    from src.preproc_tools import open_matlab_lfp, concatenate_probes, open_matlab_behaviour,\
+        open_matlab_analog, filter_lfp, cut_in_epochs, get_layer_mask, block_from_trial, \
+        get_depth_from_layer, interpolate_bad_channels, remove_extreme_channels
+        
+# to remove the spam of pandas FutureWarning with iteritems
+    path =  f'/{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/RAW'    
     path_output = f'/{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/Unipolar_sites/{session}'
 
     path_doc = f'/{server}/work/comco/nandi.n/IntrinsicTimescales/Paper/docs' #path for the excel file with ephydataset
@@ -339,11 +341,9 @@ if __name__ == "__main__":
     elif monkey == 'Tomy':
     
         LAMINAR_SESS =['t140924003','t140925001','t140926002','t140930001','t141001001','t141008001','t141010003','t150122001',
-                   't150123001','t150204001','t150205004','t150212001','t150303002','t150319003','t150320002','t150327002',
-                   't150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001','t150702002']
+                    't150123001','t150204001','t150205004','t150212001','t150303002','t150319003','t150320002','t150327002',
+                    't150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001','t150702002']
     
-    #adde later t150218001
-
     for i_session in LAMINAR_SESS:
         ALIGNMENT = 'Sel'
         COMPLETE_TRIAL = True
