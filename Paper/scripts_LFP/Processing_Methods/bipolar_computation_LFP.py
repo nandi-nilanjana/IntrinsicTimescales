@@ -127,15 +127,15 @@ def bipolar_derivation(lfp, depths, bipolar_spacing):
 if __name__ == "__main__":
         
     # list all the sessions for which we want to compute bipolar LFP
-    monkey = 'Tomy'    
+    monkey = 'Mourad'    
     # list all the sessions that we want to preprocess
     if monkey == 'Mourad': 
-        LAMINAR_SESS = ['Mo180330001','Mo180405001','Mo180405004','Mo180411001','Mo180412002',
+    # list all the sessions that we want to preprocess
+        LAMINAR_SESS = ['Mo180328001','Mo180330001','Mo180405001','Mo180405004','Mo180411001','Mo180412002',
                     'Mo180418002','Mo180419003','Mo180426004','Mo180503002', 'Mo180523002','Mo180524003', 
-                    'Mo180525003','Mo180531002','Mo180614002','Mo180614006',
-                    'Mo180615002','Mo180615005', 'Mo180619002','Mo180620004','Mo180622002',
-                    'Mo180626003', 'Mo180627003','Mo180629005', 'Mo180703003','Mo180704003', 'Mo180705002'
-                      'Mo180706002', 'Mo180710002','Mo180711004','Mo180712006']
+                    'Mo180525003','Mo180531002','Mo180614002','Mo180614006','Mo180615002','Mo180615005', 
+                    'Mo180619002','Mo180620004','Mo180622002','Mo180626003', 'Mo180627003','Mo180629005', 
+                    'Mo180703003','Mo180704003', 'Mo180705002','Mo180706002', 'Mo180710002','Mo180711004','Mo180712006']
     elif monkey == 'Tomy':
     
         LAMINAR_SESS =['t140924003','t140925001','t140926002','t140930001','t141001001','t141008001','t141010003','t150122001',

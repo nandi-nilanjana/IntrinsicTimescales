@@ -196,105 +196,104 @@ def compute_and_plot_fooof(psd, fit_freq,area_label, session_label):
 
 if __name__ == '__main__':
     
-    monkey = 'Tomy'
+    monkey_names = ['Tomy', 'Mourad']
     psd_freq = [0,100] #frequencies to compute the psd
     epoch = ['preSC1', 'preGo', 'full_trial']
     fit_freq =[2,80]
     
-    # list all the sessions that we want to preprocess
-    if monkey == 'Mourad': 
-       LAMINAR_SESS = ['Mo180330001','Mo180405001','Mo180405004','Mo180411001','Mo180412002',
-                    'Mo180418002','Mo180419003','Mo180426004','Mo180503002', 'Mo180523002','Mo180524003', 
-                    'Mo180525003','Mo180531002','Mo180614002','Mo180614006',
-                    'Mo180615002','Mo180615005', 'Mo180619002','Mo180620004','Mo180622002',
-                    'Mo180626003', 'Mo180627003','Mo180629005', 'Mo180703003','Mo180704003', 'Mo180705002'
-                      'Mo180706002', 'Mo180710002','Mo180711004','Mo180712006']
-    elif monkey == 'Tomy':
-    
-        LAMINAR_SESS =['t140924003','t140925001','t140926002','t140930001','t141001001','t141008001','t141010003','t150122001',
-                    't150123001','t150204001','t150205004','t150303002','t150319003','t150320002','t150327002',
-                    't150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001','t150702002']
-        #LAMINAR_SESS = ['t150702002']
-    for e in epoch:
-        for session in LAMINAR_SESS:
-            # check where are we running the code
-            current_path = os.getcwd()
-    
-            if current_path.startswith('/Users'):
-                server = '/Volumes/work'  # local w VPN
-            elif current_path.startswith('/home/'):
-                server = '/envau/work'  # niolon
-            elif current_path.startswith('/envau'):
-                server = '/envau/work'  # niolon
-    
-            # set the path
-            path = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/PSD/Epo_{e}/{session}_{psd_freq}'
-            path_plots = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/results/LFP/{monkey}/PSD_FOOOF/Epo_{e}/{session}_{psd_freq}_{fit_freq}'
-            path_fooof = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/FOOOF/Epo_{e}/{session}_{fit_freq}'
-           
-            if not os.path.exists(path_plots):
-                os.makedirs(path_plots)
-                
-            if not os.path.exists(path_fooof):
-                os.makedirs(path_fooof)
-
-            filenames = []
-            for i in os.listdir(path):
-                if (os.path.isfile(os.path.join(path,i)) and f'{session}' in i and '.nc' in i and 
-                'PSD' in i and 'bipolar' in i):
-                    filenames.append(i)
-            # iterate in the filenames (i.e. sites)
-            data_list = []
-            for filename_site in filenames:
-                # load the data array with the PSD of each site
-                PSD_single_trial = xr.load_dataarray(os.path.join(path, filename_site))
-    
-                # get the area
-                area = re.split('-', PSD_single_trial.channels.values[0])[0]
-    
-                # plot the data itself, average across trials, each channel one line.
-                fig1 = plot_laminar_psd(PSD_single_trial, area_label=area, session_label=session)
-                fig1.savefig(os.path.join(path_plots, f'{session}_{area}_PSD.png'), dpi=300)
-    
-                # # compute and plot the FOOOF model
-                fig_fooof, fig_aperiodic,all_knees, all_exp, all_tau, all_e,\
-                    all_r_sq = compute_and_plot_fooof(PSD_single_trial, fit_freq,area_label=area,
-                                                            session_label=session)
-                              
-                fig_fooof.savefig(os.path.join(path_plots,f'{session}_{area}_FOOOF_fit.png'), dpi=300)   
-                fig_aperiodic.savefig(os.path.join(path_plots,f'{session}_{area}_FOOOF_aperiodic_fit.png'), dpi=300)
-                plt.close('all') 
+    for monkey in monkey_names:
+        # list all the sessions that we want to preprocess
+        if monkey == 'Mourad': 
+            LAMINAR_SESS = ['Mo180328001','Mo180330001','Mo180405001','Mo180405004','Mo180411001','Mo180412002',
+                        'Mo180418002','Mo180419003','Mo180426004','Mo180503002', 'Mo180523002','Mo180524003', 
+                        'Mo180525003','Mo180531002','Mo180614002','Mo180614006','Mo180615002','Mo180615005', 
+                        'Mo180619002','Mo180620004','Mo180622002','Mo180626003', 'Mo180627003','Mo180629005', 
+                        'Mo180703003','Mo180704003', 'Mo180705002','Mo180706002', 'Mo180710002','Mo180711004','Mo180712006']
+        elif monkey == 'Tomy':
+        
+            LAMINAR_SESS =['t140924003','t140925001','t140926002','t140930001','t141001001','t141008001','t141010003','t150122001',
+                        't150123001','t150204001','t150205004','t150303002','t150319003','t150320002','t150327002',
+                        't150327003','t150415002','t150416002','t150423002','t150430002','t150520003','t150716001','t150702002']
+        for e in epoch:
+            for session in LAMINAR_SESS:
+                # check where are we running the code
+                current_path = os.getcwd()
+        
+                if current_path.startswith('/Users'):
+                    server = '/Volumes/work'  # local w VPN
+                elif current_path.startswith('/home/'):
+                    server = '/envau/work'  # niolon
+                elif current_path.startswith('/envau'):
+                    server = '/envau/work'  # niolon
+        
+                # set the path
+                path = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/PSD/Epo_{e}/{session}_{psd_freq}'
+                path_plots = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/results/LFP/{monkey}/PSD_FOOOF/Epo_{e}/{session}_{psd_freq}_{fit_freq}'
+                path_fooof = f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/FOOOF/Epo_{e}/{session}_{fit_freq}'
+               
+                if not os.path.exists(path_plots):
+                    os.makedirs(path_plots)
                     
-            # store the average psd with all the info about the laminar knee, tau, exponent , error fits
-                PSD_avg = PSD_single_trial.mean(dim='trials')
-                PSD_avg = PSD_avg.assign_coords(laminar_knees=('channels', all_knees), laminar_exp=('channels', all_exp),
-                                                laminar_tau_ms=('channels', all_tau), fit_err= ('channels',all_e),
-                                                fit_R2=('channels',all_r_sq))
-                # save the PSD_avg
-                PSD_avg.to_netcdf(os.path.join(path_fooof, f'{session}_{area}_PSD_avg_fooof.nc'))
-                
-                
-            #store the layer info for each channel - that is the exponent, fitr error and the tau to use later          
-                layers_data = PSD_single_trial.corrected_layers.values
-                
-                for l, layer in enumerate(layers_data):
-                    data_list.append({
-                    'session': session,
-                    'area': area,
-                    'layer': layer,
-                    'exp' : all_exp[l],
-                    'knee': all_knees[l],
-                    'tau': all_tau[l],
-                    'err' : all_e[l],
-                    'R^2' : all_r_sq[l]
+                if not os.path.exists(path_fooof):
+                    os.makedirs(path_fooof)
+    
+                filenames = []
+                for i in os.listdir(path):
+                    if (os.path.isfile(os.path.join(path,i)) and f'{session}' in i and '.nc' in i and 
+                    'PSD' in i and 'bipolar' in i):
+                        filenames.append(i)
+                # iterate in the filenames (i.e. sites)
+                data_list = []
+                for filename_site in filenames:
+                    # load the data array with the PSD of each site
+                    PSD_single_trial = xr.load_dataarray(os.path.join(path, filename_site))
+        
+                    # get the area
+                    area = re.split('-', PSD_single_trial.channels.values[0])[0]
+        
+                    # plot the data itself, average across trials, each channel one line.
+                    fig1 = plot_laminar_psd(PSD_single_trial, area_label=area, session_label=session)
+                    fig1.savefig(os.path.join(path_plots, f'{session}_{area}_PSD.png'), dpi=300)
+        
+                    # # compute and plot the FOOOF model
+                    fig_fooof, fig_aperiodic,all_knees, all_exp, all_tau, all_e,\
+                        all_r_sq = compute_and_plot_fooof(PSD_single_trial, fit_freq,area_label=area,
+                                                                session_label=session)
+                                  
+                    fig_fooof.savefig(os.path.join(path_plots,f'{session}_{area}_FOOOF_fit.png'), dpi=300)   
+                    fig_aperiodic.savefig(os.path.join(path_plots,f'{session}_{area}_FOOOF_aperiodic_fit.png'), dpi=300)
+                    plt.close('all') 
+                        
+                # store the average psd with all the info about the laminar knee, tau, exponent , error fits
+                    PSD_avg = PSD_single_trial.mean(dim='trials')
+                    PSD_avg = PSD_avg.assign_coords(laminar_knees=('channels', all_knees), laminar_exp=('channels', all_exp),
+                                                    laminar_tau_ms=('channels', all_tau), fit_err= ('channels',all_e),
+                                                    fit_R2=('channels',all_r_sq))
+                    # save the PSD_avg
+                    PSD_avg.to_netcdf(os.path.join(path_fooof, f'{session}_{area}_PSD_avg_fooof.nc'))
                     
-                    })
+                    
+                #store the layer info for each channel - that is the exponent, fitr error and the tau to use later          
+                    layers_data = PSD_single_trial.corrected_layers.values
+                    
+                    for l, layer in enumerate(layers_data):
+                        data_list.append({
+                        'session': session,
+                        'area': area,
+                        'layer': layer,
+                        'exp' : all_exp[l],
+                        'knee': all_knees[l],
+                        'tau': all_tau[l],
+                        'err' : all_e[l],
+                        'R^2' : all_r_sq[l]
+                        
+                        })
+                    
+                df = pd.DataFrame(data_list)
+                # # Save the dataframe as a pickle file
+                df.to_pickle(f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/FOOOF/Epo_{e}/{session}_{fit_freq}/layerwise_fooof_results.pkl')
+                print (f'Completed session {session}')
                 
-            df = pd.DataFrame(data_list)
-            # # Save the dataframe as a pickle file
-            df.to_pickle(f'{server}/comco/nandi.n/IntrinsicTimescales/Paper/data/LFP/{monkey}/FOOOF/Epo_{e}/{session}_{fit_freq}/layerwise_fooof_results.pkl')
-            print (f'Completed session {session}')
-            
             
             
     
